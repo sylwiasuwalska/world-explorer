@@ -17,7 +17,7 @@ class App extends React.Component {
 						<button>Search</button>
 					</form>
 					<Weather location={this.state.value} />
-					<Map location={this.state.value} />
+					<Photos location={this.state.value} />
 				</div>
 	}
 }
@@ -31,13 +31,12 @@ class Weather extends React.Component {
 	}
 
 	requestWeather(location) {
-		var url = `http://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&APPID=04f7272d3cbc10bd25a84e890e8916a5`
+		var url = `http://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&APPID=04f7272d3cbc10bd25a84e890e8916a5`;
 		fetch(url)
 			.then(function(resp) {
 	            return resp.json();
 	        })
 	        .then(this.updateWeather.bind(this))
-	
 	}
 
 	updateWeather(data) {
@@ -61,51 +60,55 @@ class Weather extends React.Component {
 	}
 
 	render() {
+		var img;
+		if (this.state.icon == null) {
+			img = '';
+		} else {
+			img = <img src={`http://openweathermap.org/img/w/${this.state.icon}.png`} />; 
+		}
 
 		return 	<div>
 					<div className="temp">{this.state.temp}</div>
-					<img src={`http://openweathermap.org/img/w/${this.state.icon}.png`} />
+					{img}
 					<div className="desc">{this.state.desc}</div>
 				</div>
 	}
 }
 
-class Map extends React.Component {
-	map = null;
-
-
-	requestMap(location) {
-		var self = this;
-		
-		var geocoder = new google.maps.Geocoder();
-
-		geocoder.geocode({'address': location}, function(results, status) {
-			if (status === 'OK') {
-			  self.map.setCenter(results[0].geometry.location);
-			} else {
-			  alert('Geocode was not successful for the following reason: ' + status);
-			}
-	  });
+class Photos extends React.Component {
+	state = {
+		photos: []
 	}
-	
-	componentDidMount() {
-		this.map = new google.maps.Map(document.getElementById('map'), {
-			center: {lat: 0, lng: 0},
-			zoom: 8
-		});
-		if (this.props.location) {
-			this.requestMap(this.props.location);
-		}
+
+	requestPhotos(location) {
+		var url = `https://pixabay.com/api/?key=10415994-d2b5573302ae22b5f38dc60a2&q=${location}&image_type=photo&per_page=10`
+		fetch(url)
+			.then(function(resp) {
+	            return resp.json();
+	        })
+	        .then(this.updatePhotos.bind(this))
+	}
+
+	updatePhotos(data) {
+		this.setState({
+			photos: data.hits.map(item => item.webformatURL)
+		})
 	}
 
 	componentDidUpdate(prevProps) {
 		if (this.props.location !=  prevProps.location) {
-			this.requestMap(this.props.location);
+			this.requestPhotos(this.props.location);
 		}
 	}
 
-	render () {
-		return <div id="map"></div>
+	componentDidMount() {
+		if (this.props.location) {
+			this.requestPhotos(this.props.location);
+		}
+	}
+
+	render() {
+		return <div>{this.state.photos.map( (item, i) => <img key={i} src={item} />)}</div>
 	}
 }
 
