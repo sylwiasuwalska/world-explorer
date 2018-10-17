@@ -31,7 +31,7 @@ class Weather extends React.Component {
 	}
 
 	requestWeather(location) {
-		var url = `http://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&APPID=04f7272d3cbc10bd25a84e890e8916a5`;
+		var url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&APPID=04f7272d3cbc10bd25a84e890e8916a5`;
 		fetch(url)
 			.then(function(resp) {
 	            return resp.json();
