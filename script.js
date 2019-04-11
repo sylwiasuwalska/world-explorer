@@ -2,7 +2,7 @@
 
 class App extends React.Component {
 	state = {
-		value: "Warszawa"
+		value: "California"
 	}
 
 	inputToState(event) {
@@ -12,9 +12,10 @@ class App extends React.Component {
 
 	render() {
 		return 	<div>
-					<form onSubmit={this.inputToState.bind(this)}>
-						<input type="text" placeholder={this.state.value} />
-						<button>Search</button>
+					<form className="form form-group" onSubmit={this.inputToState.bind(this)}>
+						<h2>Find city:</h2>
+						<input type="text" className="form-control form-control-md" placeholder={this.state.value} />
+						<button className="btn btn-secondary btn-md">Search</button>
 					</form>
 					<Weather location={this.state.value} />
 					<Photos location={this.state.value} />
@@ -40,11 +41,20 @@ class Weather extends React.Component {
 	}
 
 	updateWeather(data) {
-		this.setState({
-			temp: data.main.temp,
-			icon: data.weather[0].icon,
-			desc: data.weather[0].description
-		})
+
+		if (!data.main) {
+			this.setState({
+				temp: 'no data ',
+				icon: '',
+				desc: 'no data'
+			})
+		} else {
+			this.setState({
+				temp: data.main.temp,
+				icon: data.weather[0].icon,
+				desc: data.weather[0].description
+			})
+		}
 	}
 
 	componentDidUpdate(prevProps) {
@@ -61,16 +71,15 @@ class Weather extends React.Component {
 
 	render() {
 		var img;
-		if (this.state.icon == null) {
+		if (this.state.icon == undefined) {
 			img = '';
 		} else {
 			img = <img src={`http://openweathermap.org/img/w/${this.state.icon}.png`} />; 
 		}
 
-		return 	<div>
-					<div className="temp">{this.state.temp}</div>
-					{img}
-					<div className="desc">{this.state.desc}</div>
+		return 	<div className = "weather">
+						{img}
+						<h3> Current weather in {this.props.location}: {this.state.temp}°C, {this.state.desc}  </h3>
 				</div>
 	}
 }
@@ -108,7 +117,10 @@ class Photos extends React.Component {
 	}
 
 	render() {
-		return <div>{this.state.photos.map( (item, i) => <img key={i} src={item} />)}</div>
+		return <div className="photo-container">
+					<h3>Photos tagged in {this.props.location}:</h3>
+					<div className="photos">{this.state.photos.map( (item, i) => <img key={i} src={item} />)}</div>
+				</div>
 	}
 }
 
